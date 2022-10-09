@@ -11,7 +11,7 @@ BOBJS 		= ${BSRCS:.c=.o}
 LIB		= libft.a
 NAME	= p
 CC 			= cc
-CFLAGS		= -Wall -Wextra# -Werror
+CFLAGS		= -Wall -Wextra -fsanitize=address -fsanitize=undefined
 AR			= ar rcs
 RM			= rm -f
 
