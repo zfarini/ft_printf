@@ -119,7 +119,10 @@ void insert_str_at(char **s, int i, char *s2)
 	res = malloc(ft_strlen(*s) + ft_strlen(s2) + 1);
 	j = 0;
 	while (j < i)
-		res[j++] = (*s)[i];
+	{
+		res[j] = (*s)[j];
+		j++;
+	}
 	while (s2[j - i])
 	{
 		res[j] = s2[j - i];
@@ -154,6 +157,7 @@ void	update_s_using_flags(int *flags, char **s, char c)
 		insert_str_at(s, 0, "0x");
 	int len = ft_strlen(*s);
 	int j;
+	
 	if (len < flags['w'])
 	{
 		j = -1;
@@ -181,7 +185,6 @@ void	update_s_using_flags(int *flags, char **s, char c)
 			}
 			else
 			{
-				
 				j = -1;
 				while (++j < flags['w'] - len)
 					insert_str_at(s, 0, " ");
@@ -207,10 +210,10 @@ int ft_printf(char *format, ...)
 			if (!ft_strchr("cspdiuxX%", format[i]))//todo: are u sure we should continue?
 				continue;
 			char *s = find_initial_s(&ap, format[i]);
-			
 			update_s_using_flags(flags, &s, format[i]);
-			puts(s);
-			//bytes_written = write(1, s, ft_strlen(s));//TODO: write fail
+			
+			//puts(s);
+			bytes_written = write(1, s, ft_strlen(s));//TODO: write fail
 			//!!TODO: should we va_arg() here?
 			
 			if (format[i] != '%') //TODO: does this always work?
@@ -232,5 +235,5 @@ int main()
 {
 	#define T(fmt, ...) printf(fmt"\n", __VA_ARGS__), fflush(stdout), ft_printf(fmt"\n", __VA_ARGS__)
 	
-	T("%-10xt%010i", 42, 1337);
+	T("%-10xt", 42);
 }
