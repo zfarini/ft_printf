@@ -1,39 +1,35 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_strtrim.c                                       :+:      :+:    :+:   */
+/*   ft_putnbr_base.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: zfarini <zfarini@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/10/06 17:50:00 by zfarini           #+#    #+#             */
-/*   Updated: 2022/10/10 10:47:16 by zfarini          ###   ########.fr       */
+/*   Created: 2022/06/12 09:00:44 by zfarini           #+#    #+#             */
+/*   Updated: 2022/10/10 14:35:57 by zfarini          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <unistd.h>
 #include "libft.h"
 
-char	*ft_strtrim(char const *s1, char const *set)
+void	ft_putnbr_base(size_t nbr, char *base)
 {
-	char	*res;
-	int		i;
-	int		j;
-	int		k;
+	size_t	divisor;
+	size_t	nb_copy;
+	size_t	b;
 
-	i = 0;
-	while (s1[i] && ft_strchr(set, s1[i]))
-		i++;
-	j = ft_strlen(s1) - 1;
-	while (j >= 0 && ft_strchr(set, s1[j]))
-		j--;
-	if (i > j)
-		res = malloc(1);
-	else
-		res = malloc(j - i + 2);
-	if (!res)
-		return (0);
-	k = 0;
-	while (i <= j)
-		res[k++] = s1[i++];
-	res[k] = 0;
-	return (res);
+	b = ft_strlen(base);
+	divisor = 1;
+	nb_copy = nbr;
+	while (nb_copy >= b)
+	{
+		divisor *= b;
+		nb_copy /= b;
+	}
+	while (divisor > 0)
+	{
+		ft_putchar_fd(base[((nbr / divisor) % b)], 1);
+		divisor /= b;
+	}
 }

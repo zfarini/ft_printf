@@ -18,7 +18,7 @@ RM			= rm -f
 all: ${NAME}
 
 ${NAME}: ${LIB}  ft_printf.c
-	${CC} ${CFLAGS} ft_printf.c -o ${NAME} ${LIB}
+	${CC} ${CFLAGS} ft_printf.c ft_putnbr_base.c -o ${NAME} ${LIB}
 ${LIB}: ${OBJS}
 	${AR} ${LIB} ${OBJS}
 

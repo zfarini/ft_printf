@@ -1,230 +1,204 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdarg.h>
-#include <assert.h>
-#include "libft.h"
+#include "ft_printf.h"
 
-
-#define FLAGS_SIZE 256
-
-void add_flags(int *flags, char *format, int *i)
+//!TODO: make sure we can pass ap as value
+void read_value(va_list ap, char c, ft_printf_info_t *info)
 {
-	
-	ft_memset(flags, 0, FLAGS_SIZE * sizeof(int));
-	while (ft_strchr("-+ #0", format[*i]))
+	info->sp = c;
+	if (ft_strchr("id", c))
 	{
-		flags[(int)format[*i]] = 1;
-		*i = *i + 1;
+		info->type = TYPE_INT;
+		info->i_value = va_arg(ap, int);
 	}
-	while (ft_isdigit(format[*i]))
+	else if (ft_strchr("xXu", c))
 	{
-		flags['w'] = flags['w'] * 10 + (format[*i] - '0');
-		*i = *i + 1;
+		info->type = TYPE_UINT;
+		info->u_value = va_arg(ap, unsigned int);
 	}
-	if (format[*i] == '.')
+	else if (c == 'p')
 	{
-		*i = *i + 1;
-		while (ft_isdigit(format[*i]))
-			flags['.'] = flags['.'] * 10 + (format[*i++] - '0');
+		info->type = TYPE_PTR;
+		info->u_value = (size_t)va_arg(ap, void *);
 	}
+	else if (c == 's')
+	{
+		info->type = TYPE_STR;
+		info->u_value = (size_t)va_arg(ap, char *);
+	}
+	else if (c == 'c')
+	{
+		info->type = TYPE_CHAR;
+		info->i_value = va_arg(ap, int);
+	}
+	if (ft_strchr("xXp", c))
+		info->is_hex = 1;
 }
 
-int	ft_numlen_base(size_t n, int base)
+int int_len(int n)
 {
-	int	len;
+	int res;
 
-	len = (n == 0);
+	res = (n == 0);
 	while (n)
 	{
-		len++;
-		n /= base;
-	}
-	return (len);
-}
-
-char	*ft_utoa_hex(size_t n, int upper_case)
-{
-	int		i;
-	char	*res;
-		
-	i = ft_numlen_base(n, 16);
-	res = malloc(i + 1);
-	if (!res)
-		return (0);
-	res[i--] = '\0';
-	while (i >= 0)
-	{
-		if (upper_case)
-			res[i--] = "0123456789ABCDEF"[n % 16];
-		else
-			res[i--] = "0123456789abcdef"[n % 16];
-		n /= 16;
-	}
-	return (res);
-}
-
-char	*ft_utoa(unsigned int n)
-{
-	int		i;
-	char	*res;
-		
-	i = ft_numlen_base(n, 10);
-	res = malloc(i + 1);
-	if (!res)
-		return (0);
-	res[i--] = '\0';
-	while (i >= 0)
-	{
-		res[i--] = n % 10;
+		res++;
 		n /= 10;
 	}
 	return (res);
 }
 
-char	*find_initial_s(va_list *pap, char c)
+int uint_len(int n, int hex)
 {
-	va_list ap;
-	va_copy(ap, *pap);
-	char *res = 0;
+	int res;
 
-	if (c == 'd' || c == 'i')
-		res = ft_itoa(va_arg(ap, int));
-	else if (c == 'u')
-		res = ft_utoa(va_arg(ap, unsigned int));
-	else if (c == 'x' || c == 'X')
-		res = ft_utoa_hex(va_arg(ap, unsigned int), c == 'X');
-	else if (c == 'p')
-		res = ft_utoa_hex(va_arg(ap, size_t), 0);
-	else if (c == 's')
-		res = ft_strdup(va_arg(ap, char *));
-	else if (c == 'c')
+	res = (n == 0);
+	while (n)
 	{
-		res = calloc(2, sizeof(char));
-		res[0] = va_arg(ap, int);
+		res++;
+		if (hex)
+			n /= 16;
+		else
+			n /= 10;
 	}
-	else if (c == '%')
-	{
-		res = calloc(2, sizeof(char));
-		res[0] = '%';
-	}
-	va_end(ap);
 	return (res);
 }
 
-void insert_str_at(char **s, int i, char *s2)
+//!!TODO: null string
+void find_value_width(ft_printf_info_t *info)
 {
-	char	*res;
-	int		j;
-	res = malloc(ft_strlen(*s) + ft_strlen(s2) + 1);
-	j = 0;
-	while (j < i)
-	{
-		res[j] = (*s)[j];
-		j++;
-	}
-	while (s2[j - i])
-	{
-		res[j] = s2[j - i];
-		j++;
-	}
-	while ((*s)[i])
-		res[j++] = (*s)[i++];
-	res[j] = 0;
-	free(*s);
-	*s = res;
-	
+	if (info->type == TYPE_INT)
+		info->width += int_len(info->i_value);
+	else if (ft_strchr("xXup", info->sp))
+		info->width += uint_len(info->u_value, info->is_hex);
+	else if (info->type == TYPE_STR)
+		info->width += ft_strlen((char *)info->u_value);
+	else if (info->type == TYPE_CHAR)
+		info->width++;//!TODO: is this right?
+	else
+		assert(0);
 }
 
-void	update_s_using_flags(int *flags, char **s, char c)
+void find_width(ft_printf_info_t *info)
 {
-	
-	if (ft_strchr("id", c) && ft_isdigit(*s[0]))
+	//!TODO: precesion behave differently with strings
+	find_value_width(info);
+	if (info->precision_width > info->width)
+	//!TODO: && ft_strchr("iduxX", info->sp) && )
 	{
-		if (flags['+'])
-			insert_str_at(s, 0, "+");
-		else if (flags[' '])
-			insert_str_at(s, 0, " ");
+		info->width = info->precision_width;
 	}
-	if (flags['#'] && ft_strchr("xX", c))
+	if (info->type == TYPE_INT && 
+		(info->force_sign || info->force_space || info->i_value < 0))
+		info->width++;// ' ' || '+' || '-'
+	if (info->is_hex && (info->type == TYPE_PTR || info->hash))
+		info->width += 2;// '0x' || '0X'
+}
+
+void add_flags(char **fmt, ft_printf_info_t *info)
+{
+	while (ft_strchr("+- #0", **fmt))
 	{
-		if (c == 'x')
-			insert_str_at(s, 0, "0x");
-		else
-			insert_str_at(s, 0, "0X");
+		if (**fmt == '+') 
+			info->force_sign = 1;
+		else if (**fmt == '-')
+			info->left_justify = 1;
+		else if (**fmt == ' ')
+			info->force_space = 1;
+		else if (**fmt == '#')
+			info->hash = 1;
+		else if (**fmt == '0')
+			info->padding_with_0 = 1;
+		*fmt = *fmt + 1;
 	}
-	if (c == 'p')
-		insert_str_at(s, 0, "0x");
-	int len = ft_strlen(*s);
-	int j;
-	
-	if (len < flags['w'])
+	while (ft_isdigit(**fmt))
 	{
-		j = -1;
-		
-		if (flags['-'])
+		info->min_width = info->min_width * 10 + (**fmt - '0');
+		*fmt = *fmt + 1;
+	}
+	if (**fmt == '.')
+	{
+		info->precision_set = 1;
+		*fmt = *fmt + 1;
+		while (ft_isdigit(**fmt))
 		{
-			//TODO: this is dump just realloc, memset to spaces and then copy
-			while (++j < flags['w'] - len)
-				insert_str_at(s, ft_strlen(*s), " ");
-		}
-		else
-		{
-			if (flags['0'])
-			{
-				if (ft_strchr("iduxXp", c))
-				{
-					int at = !ft_isdigit(*s[0]);
-					if (!ft_isdigit(*s[1]))
-						at = 2;
-					j = -1;
-					while (++j < flags['w'] - len)
-						insert_str_at(s, at, "0");
-				}
-				//todo: what about "sc%"?
-			}
-			else
-			{
-				j = -1;
-				while (++j < flags['w'] - len)
-					insert_str_at(s, 0, " ");
-			}
+			info->precision_width = info->precision_width * 10 + (**fmt - '0');
+			*fmt = *fmt + 1;
 		}
 	}
 }
 
-int ft_printf(char *format, ...)
+int ft_printf(char *fmt, ...)
 {
-	int flags[FLAGS_SIZE];
+	ft_printf_info_t info = {0};
 	va_list	ap;
-	va_start(ap, format);
+	va_start(ap, fmt);
 	int bytes_written = 0;
-	int i = 0;//TODO: remove this and use just format
-	while (format[i])
+	while (*fmt)
 	{
-		if (format[i] == '%')
+		if (*fmt == '%')
 		{
-			i++;
-			add_flags(flags, format, &i);
-			
-			if (!ft_strchr("cspdiuxX%", format[i]))//todo: are u sure we should continue?
+			fmt++;
+			add_flags(&fmt, &info);
+			if (!ft_strchr("cspdiuxX%", *fmt))//todo: are u sure we should continue?
 				continue;
-			char *s = find_initial_s(&ap, format[i]);
-			update_s_using_flags(flags, &s, format[i]);
-			
-			//puts(s);
-			bytes_written = write(1, s, ft_strlen(s));//TODO: write fail
-			//!!TODO: should we va_arg() here?
-			
-			if (format[i] != '%') //TODO: does this always work?
-				va_arg(ap, int);
-			i++;
-		
+			read_value(ap, *fmt, &info);
+			find_width(&info);
+			//
+			if (!info.left_justify)
+			{
+				int w = info.min_width - info.width;
+				while (w --> 0)
+				{
+					if (!info.precision_set && info.padding_with_0)
+						write(1, "0", 1);
+					else
+						write(1, " ", 1);
+				}
+			}
+			//sign or ' '
+			if (info.type == TYPE_INT)
+			{
+				if (info.i_value < 0)
+					write(1, "-", 1);
+				else if (info.force_sign)
+					write(1, "+", 1);
+				else if (info.force_space)
+					write(1, " ", 1);
+			}
+			//'0x' || '0X'
+			if (info.type == TYPE_PTR || (info.sp == 'x' && info.hash))
+				write(1, "0x", 2);
+			if (info.hash && info.sp == 'X')
+				write(1, "0X", 2);
+			//!TODO precesion 0 with num 0 should print nothing
+			//write the missing zeroes
+			if (info.type == TYPE_INT)
+			{
+				//printf("%d %d\n", info.precision_width, int_len(info.i_value));
+				int w = info.precision_width - int_len(info.i_value);
+				while (w --> 0)
+					write(1, "0", 1);
+				ft_putnbr_fd(info.i_value, 1);
+			}
+			if (ft_strchr("xXu", info.sp))
+			{
+				int w = info.precision_width - int_len(info.u_value);
+				while (w --> 0)
+					write(1, "0", 1);
+			}
+			if (ft_strchr("xp", info.sp))
+				ft_putnbr_base(info.u_value, "0123456789abcdef");
+			else if (info.sp == 'X')
+				ft_putnbr_base(info.u_value, "0123456789ABCDEF");
+			else if (info.type == TYPE_STR)
+				ft_putstr_fd((char *)info.u_value, 1);
+			else if (info.type == TYPE_CHAR)
+				ft_putchar_fd(info.i_value, 1);
+			fmt++;
 		}
 		else
 		{
-			bytes_written += write(1, &format[i], 1); // TODO: write fail
-			i++;
+			write(1, fmt, 1); // TODO: write fail
+			fmt++;
 		}
 	}
 	va_end(ap);
@@ -234,6 +208,16 @@ int ft_printf(char *format, ...)
 int main()
 {
 	#define T(fmt, ...) printf(fmt"\n", __VA_ARGS__), fflush(stdout), ft_printf(fmt"\n", __VA_ARGS__)
-	
-	T("%-10xt", 42);
+	T("%010.9d", 42);
+	T("%+10d", 42);
+
+
+	//T("%010.5d", 42);
 }
+
+//999 999 999
+//111111111
+
+//1(9) * a1 
+
+//
