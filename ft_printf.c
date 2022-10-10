@@ -23,6 +23,8 @@ void read_value(va_list ap, char c, ft_printf_info_t *info)
 	{
 		info->type = TYPE_STR;
 		info->u_value = (size_t)va_arg(ap, char *);
+		if (!info->u_value)
+			info->u_value = (size_t)"(null)";
 	}
 	else if (c == 'c')
 	{
@@ -70,7 +72,12 @@ void find_value_width(ft_printf_info_t *info)
 	else if (ft_strchr("xXup", info->sp))
 		info->width += uint_len(info->u_value, info->is_hex);
 	else if (info->type == TYPE_STR)
-		info->width += ft_strlen((char *)info->u_value);
+	{
+		if (info->precision_set && ft_strlen((char *)info->u_value) > (size_t)info->precision_width)
+			info->width += info->precision_width;
+		else
+			info->width += ft_strlen((char *)info->u_value);
+	}
 	else if (info->type == TYPE_CHAR)
 		info->width++;//!TODO: is this right?
 	else
@@ -140,9 +147,17 @@ int ft_printf(char *fmt, ...)
 			add_flags(&fmt, &info);
 			if (!ft_strchr("cspdiuxX%", *fmt))//todo: are u sure we should continue?
 				continue;
+			if (*fmt == '%')
+			{
+				write(1, "%", 1);
+				fmt++;
+				continue;
+			}
 			read_value(ap, *fmt, &info);
 			find_width(&info);
 			//
+			if (info.precision_set && !info.precision_width && ft_strchr("xXuid", info.sp) && info.i_value == 0 && info.u_value == 0)
+				info.width--;
 			if (!info.left_justify)
 			{
 				int w = info.min_width - info.width;
@@ -165,34 +180,56 @@ int ft_printf(char *fmt, ...)
 					write(1, " ", 1);
 			}
 			//'0x' || '0X'
-			if (info.type == TYPE_PTR || (info.sp == 'x' && info.hash))
-				write(1, "0x", 2);
-			if (info.hash && info.sp == 'X')
-				write(1, "0X", 2);
-			//!TODO precesion 0 with num 0 should print nothing
-			//write the missing zeroes
-			if (info.type == TYPE_INT)
+			if (info.precision_set && !info.precision_width && ft_strchr("xXuid", info.sp) && info.i_value == 0 && info.u_value == 0)
+				;
+			else
 			{
-				//printf("%d %d\n", info.precision_width, int_len(info.i_value));
-				int w = info.precision_width - int_len(info.i_value);
-				while (w --> 0)
-					write(1, "0", 1);
-				ft_putnbr_fd(info.i_value, 1);
+				
+				if (info.type == TYPE_PTR || (info.sp == 'x' && info.hash))
+					write(1, "0x", 2);
+				if (info.hash && info.sp == 'X')
+					write(1, "0X", 2);
+				//write the missing zeroes
+				if (info.type == TYPE_INT)
+				{
+					//printf("%d %d\n", info.precision_width, int_len(info.i_value));
+					int w = info.precision_width - int_len(info.i_value);
+					while (w --> 0)
+						write(1, "0", 1);
+					ft_putnbr_fd(info.i_value, 1);
+				}
+				 if (ft_strchr("xXu", info.sp))
+				{
+					int w = info.precision_width - int_len(info.u_value);
+					while (w --> 0)
+						write(1, "0", 1);
+				}
+				if (ft_strchr("xp", info.sp))
+					ft_putnbr_base(info.u_value, "0123456789abcdef");
+				if (info.sp == 'X')
+					ft_putnbr_base(info.u_value, "0123456789ABCDEF");
+				if (info.type == TYPE_STR)
+				{
+					int l = ft_strlen((char *)info.u_value);
+					if (info.precision_set && l > info.precision_width)
+						l = info.precision_width;
+					for (int i = 0; i < l; i++)
+						ft_putchar_fd(((char *)info.u_value)[i], 1);
+				}
+				if (info.type == TYPE_CHAR)
+					ft_putchar_fd(info.i_value, 1);
+				if (info.left_justify)
+				{
+					int w = info.min_width - info.width;
+					while (w --> 0)
+					{
+						if (!info.precision_set && info.padding_with_0)
+							write(1, "0", 1);
+						else
+							write(1, " ", 1);
+					}
+				}
 			}
-			if (ft_strchr("xXu", info.sp))
-			{
-				int w = info.precision_width - int_len(info.u_value);
-				while (w --> 0)
-					write(1, "0", 1);
-			}
-			if (ft_strchr("xp", info.sp))
-				ft_putnbr_base(info.u_value, "0123456789abcdef");
-			else if (info.sp == 'X')
-				ft_putnbr_base(info.u_value, "0123456789ABCDEF");
-			else if (info.type == TYPE_STR)
-				ft_putstr_fd((char *)info.u_value, 1);
-			else if (info.type == TYPE_CHAR)
-				ft_putchar_fd(info.i_value, 1);
 			fmt++;
 		}
 		else
@@ -208,16 +245,7 @@ int ft_printf(char *fmt, ...)
 int main()
 {
 	#define T(fmt, ...) printf(fmt"\n", __VA_ARGS__), fflush(stdout), ft_printf(fmt"\n", __VA_ARGS__)
-	T("%010.9d", 42);
-	T("%+10d", 42);
-
-
+	//T("%---+++ 00 30.20dt", 42);
+	//T("%+10.0dt", 0);
 	//T("%010.5d", 42);
 }
-
-//999 999 999
-//111111111
-
-//1(9) * a1 
-
-//
