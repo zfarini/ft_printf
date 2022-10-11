@@ -96,7 +96,7 @@ void find_width(ft_printf_info_t *info)
 	if (info->type == TYPE_INT &&
 		(info->force_sign || info->force_space || info->i_value < 0))
 		info->width++;// ' ' || '+' || '-'
-	if (info->is_hex && (info->type == TYPE_PTR || info->hash) && info->u_value)
+	if (info->is_hex && (info->type == TYPE_PTR || info->hash) && (info->u_value || info->sp == 'p'))
 		info->width += 2;// '0x' || '0X'
 }
 
@@ -184,7 +184,7 @@ int ft_printf(const char *fmt, ...)
 			{
 				if (info.i_value < 0)
 					bytes_written += write(1, "-", 1);
-				if (info.force_sign)
+				else if (info.force_sign)
 					bytes_written += write(1, "+", 1);
 				else if (info.force_space)
 					bytes_written += write(1, " ", 1);
