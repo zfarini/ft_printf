@@ -96,7 +96,7 @@ void find_width(ft_printf_info_t *info)
 	if (info->type == TYPE_INT &&
 		(info->force_sign || info->force_space || info->i_value < 0))
 		info->width++;// ' ' || '+' || '-'
-	if (info->is_hex && (info->type == TYPE_PTR || info->hash))
+	if (info->is_hex && (info->type == TYPE_PTR || info->hash) && info->u_value)
 		info->width += 2;// '0x' || '0X'
 }
 
@@ -159,6 +159,15 @@ int ft_printf(const char *fmt, ...)
 			//
 			if (info.precision_set && !info.precision_width && ft_strchr("xXuid", info.sp) && info.i_value == 0 && info.u_value == 0)
 				info.width--;
+			if (!info.precision_set && info.padding_with_0 && info.type == TYPE_INT)
+			{
+				if (info.i_value < 0)
+					bytes_written += write(1, "-", 1);
+				if (info.force_sign)
+					bytes_written += write(1, "+", 1);
+				else if (info.force_space)
+					bytes_written += write(1, " ", 1);
+			}
 			if (!info.left_justify)
 			{
 				int w = info.min_width - info.width;
@@ -171,8 +180,10 @@ int ft_printf(const char *fmt, ...)
 				}
 			}
 			//sign or ' '
-			if (info.type == TYPE_INT && info.i_value >= 0)
+			if (info.type == TYPE_INT && (info.precision_set || !info.padding_with_0))
 			{
+				if (info.i_value < 0)
+					bytes_written += write(1, "-", 1);
 				if (info.force_sign)
 					bytes_written += write(1, "+", 1);
 				else if (info.force_space)
@@ -184,9 +195,9 @@ int ft_printf(const char *fmt, ...)
 			else
 			{
 
-				if (info.type == TYPE_PTR || (info.sp == 'x' && info.hash))
+				if (info.type == TYPE_PTR || (info.sp == 'x' && info.hash && info.u_value))
 					bytes_written += write(1, "0x", 2);
-				if (info.hash && info.sp == 'X')
+				if (info.hash && info.sp == 'X' && info.u_value)
 					bytes_written += write(1, "0X", 2);
 				//write the missing zeroes
 				if (info.type == TYPE_INT)
@@ -199,7 +210,7 @@ int ft_printf(const char *fmt, ...)
 				}
 				 if (ft_strchr("xXu", info.sp))
 				{
-					int w = info.precision_width - int_len(info.u_value);
+					int w = info.precision_width - uint_len(info.u_value, info.sp != 'u');
 					while (w --> 0)
 						bytes_written += write(1, "0", 1);
 				}
