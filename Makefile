@@ -11,7 +11,7 @@ BOBJS 		= ${BSRCS:.c=.o}
 LIB		= libft.a
 NAME	= libftprintf.a
 CC 			= cc
-CFLAGS		= -Wall -Wextra
+CFLAGS		= -Wall -Wextra 
 AR			= ar rcs
 RM			= rm -f
 

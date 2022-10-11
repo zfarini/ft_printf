@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_printf.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: zfarini <zfarini@student.42.fr>            +#+  +:+       +#+        */
+/*   By: zfarini <zfarini@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/11 13:44:40 by zfarini           #+#    #+#             */
-/*   Updated: 2022/10/11 14:23:27 by zfarini          ###   ########.fr       */
+/*   Updated: 2022/10/11 17:03:10 by zfarini          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,7 @@ void	find_value_width(t_ft_printf_info *info)
 void	find_width(t_ft_printf_info *info)
 {
 	find_value_width(info);
-	if (info->precision_width > info->width)
+	if (ft_strchr("idxXu", info->sp) && info->precision_width > info->width)
 		info->width = info->precision_width;
 	if (ft_strchr("id", info->sp)
 		&& (info->force_sign
@@ -85,6 +85,10 @@ void	find_width(t_ft_printf_info *info)
 		&& (info->sp == 'p' || info->hash)
 		&& (info->u_value || info->sp == 'p'))
 		info->width += 2;
+	if (info->precision_set && !info->precision_width
+		&& ft_strchr("diuxX", info->sp)
+		&& !info->i_value && !info->u_value)
+		info->width--;
 }
 
 void	add_point_flag(const char **fmt, t_ft_printf_info *info)
@@ -218,7 +222,6 @@ void	print_missing_zeroes(t_ft_printf_info *info)
 			print(info, "0", 1);
 			w--;
 		}
-		putnbr(info, info->i_value);
 	}
 	if (ft_strchr("xXu", info->sp))
 	{
@@ -257,7 +260,13 @@ void	print_the_actual_object(t_ft_printf_info *info)
 	int	i;
 	int	l;
 
-	if (info->sp == 'u')
+	if (info->precision_set && !info->precision_width
+		&& ft_strchr("diuxX", info->sp)
+		&& !info->i_value && !info->u_value)
+		;
+	else if (ft_strchr("id", info->sp))
+		putnbr(info, info->i_value);
+	else if (info->sp == 'u')
 		putnbr_base(info, info->u_value, "0123456789");
 	else if (ft_strchr("xp", info->sp))
 		putnbr_base(info, info->u_value, "0123456789abcdef");
