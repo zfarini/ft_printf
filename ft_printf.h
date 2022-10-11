@@ -7,20 +7,10 @@
 
 #ifndef FT_PRINTF_H
 #define FT_PRINTF_H
-typedef union  value_s {
-	int	i;
-	size_t u;
-} value_t;
 
-typedef enum type_e {
-	TYPE_INT,
-	TYPE_UINT,
-	TYPE_STR,
-	TYPE_CHAR,
-	TYPE_PTR
-} type_t;
 
-typedef struct ft_printf_info_s {
+typedef struct s_ft_printf_info {
+	
 	int left_justify;
 	int force_sign;
 	int force_space;
@@ -29,14 +19,16 @@ typedef struct ft_printf_info_s {
 	int min_width;
 	int precision_width;
 	int precision_set;
-	int is_hex; // 1 for lower case hex and 2 for upper
+
+	int is_hex;
 	int width;
 	char sp;
-	type_t type;
 	int i_value;
+	int bytes_written;
+	int write_failed;
 	size_t u_value;
 
-}	ft_printf_info_t;
+}	t_ft_printf_info;
 
 int ft_printf(const char *format, ...);
 int	ft_putnbr_base(size_t nbr, char *base);

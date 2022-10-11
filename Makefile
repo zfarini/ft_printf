@@ -17,13 +17,8 @@ RM			= rm -f
 
 all: ${NAME}
 
-${NAME}: ${OBJS}  ft_printf.o ft_putnbr_base.o
+${NAME}: ${OBJS}  ft_printf.o ft_putnbr_base.o ft_printf.c
 	${AR} ${NAME} ${OBJS} ft_printf.o ft_putnbr_base.o
-${LIB}: ${OBJS}
-	${AR} ${LIB} ${OBJS}
-
-bonus: ${BOBJS} ${OBJS}
-	${AR} ${LIB} ${BOBJS} ${OBJS}
 
 clean:
 	${RM} ${OBJS} ${BOBJS}
