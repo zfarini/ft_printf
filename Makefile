@@ -9,16 +9,16 @@ BSRCS		= ft_lstnew_bonus.c ft_lstadd_front_bonus.c ft_lstsize_bonus.c ft_lstlast
 OBJS		= ${SRCS:.c=.o}
 BOBJS 		= ${BSRCS:.c=.o}
 LIB		= libft.a
-NAME	= p
+NAME	= libftprintf.a
 CC 			= cc
-CFLAGS		= -Wall -Wextra -fsanitize=address -fsanitize=undefined
+CFLAGS		= -Wall -Wextra
 AR			= ar rcs
 RM			= rm -f
 
 all: ${NAME}
 
-${NAME}: ${LIB}  ft_printf.c
-	${CC} ${CFLAGS} ft_printf.c ft_putnbr_base.c -o ${NAME} ${LIB}
+${NAME}: ${OBJS}  ft_printf.o ft_putnbr_base.o
+	${AR} ${NAME} ${OBJS} ft_printf.o ft_putnbr_base.o
 ${LIB}: ${OBJS}
 	${AR} ${LIB} ${OBJS}
 

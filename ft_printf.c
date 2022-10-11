@@ -93,7 +93,7 @@ void find_width(ft_printf_info_t *info)
 	{
 		info->width = info->precision_width;
 	}
-	if (info->type == TYPE_INT && 
+	if (info->type == TYPE_INT &&
 		(info->force_sign || info->force_space || info->i_value < 0))
 		info->width++;// ' ' || '+' || '-'
 	if (info->is_hex && (info->type == TYPE_PTR || info->hash))
@@ -104,7 +104,7 @@ void add_flags(char **fmt, ft_printf_info_t *info)
 {
 	while (ft_strchr("+- #0", **fmt))
 	{
-		if (**fmt == '+') 
+		if (**fmt == '+')
 			info->force_sign = 1;
 		else if (**fmt == '-')
 			info->left_justify = 1;
@@ -133,7 +133,7 @@ void add_flags(char **fmt, ft_printf_info_t *info)
 	}
 }
 
-int ft_printf(char *fmt, ...)
+int ft_printf(const char *fmt, ...)
 {
 	ft_printf_info_t info = {0};
 	va_list	ap;
@@ -149,7 +149,7 @@ int ft_printf(char *fmt, ...)
 				continue;
 			if (*fmt == '%')
 			{
-				write(1, "%", 1);
+				bytes_written += write(1, "%", 1);
 				fmt++;
 				continue;
 			}
@@ -164,69 +164,69 @@ int ft_printf(char *fmt, ...)
 				while (w --> 0)
 				{
 					if (!info.precision_set && info.padding_with_0)
-						write(1, "0", 1);
+						bytes_written += write(1, "0", 1);
 					else
-						write(1, " ", 1);
+						bytes_written += write(1, " ", 1);
 				}
 			}
 			//sign or ' '
-			if (info.type == TYPE_INT)
+			if (info.type == TYPE_INT && info.i_value >= 0)
 			{
-				if (info.i_value < 0)
-					write(1, "-", 1);
-				else if (info.force_sign)
-					write(1, "+", 1);
+				if (info.force_sign)
+					bytes_written += write(1, "+", 1);
 				else if (info.force_space)
-					write(1, " ", 1);
+					bytes_written += write(1, " ", 1);
 			}
 			//'0x' || '0X'
 			if (info.precision_set && !info.precision_width && ft_strchr("xXuid", info.sp) && info.i_value == 0 && info.u_value == 0)
 				;
 			else
 			{
-				
+
 				if (info.type == TYPE_PTR || (info.sp == 'x' && info.hash))
-					write(1, "0x", 2);
+					bytes_written += write(1, "0x", 2);
 				if (info.hash && info.sp == 'X')
-					write(1, "0X", 2);
+					bytes_written += write(1, "0X", 2);
 				//write the missing zeroes
 				if (info.type == TYPE_INT)
 				{
 					//printf("%d %d\n", info.precision_width, int_len(info.i_value));
 					int w = info.precision_width - int_len(info.i_value);
 					while (w --> 0)
-						write(1, "0", 1);
-					ft_putnbr_fd(info.i_value, 1);
+						bytes_written += write(1, "0", 1);
+					bytes_written += ft_putnbr_fd(info.i_value, 1);
 				}
 				 if (ft_strchr("xXu", info.sp))
 				{
 					int w = info.precision_width - int_len(info.u_value);
 					while (w --> 0)
-						write(1, "0", 1);
+						bytes_written += write(1, "0", 1);
 				}
+				if (info.sp == 'u')
+					bytes_written += ft_putnbr_base(info.u_value, "0123456789");
 				if (ft_strchr("xp", info.sp))
-					ft_putnbr_base(info.u_value, "0123456789abcdef");
+					bytes_written += ft_putnbr_base(info.u_value, "0123456789abcdef");
 				if (info.sp == 'X')
-					ft_putnbr_base(info.u_value, "0123456789ABCDEF");
+					bytes_written += ft_putnbr_base(info.u_value, "0123456789ABCDEF");
 				if (info.type == TYPE_STR)
 				{
 					int l = ft_strlen((char *)info.u_value);
 					if (info.precision_set && l > info.precision_width)
 						l = info.precision_width;
 					for (int i = 0; i < l; i++)
-						ft_putchar_fd(((char *)info.u_value)[i], 1);
+						bytes_written +=write(1,((char *)info.u_value) + i, 1);
 				}
 				if (info.type == TYPE_CHAR)
-					ft_putchar_fd(info.i_value, 1);
+					bytes_written += write(1, &info.i_value, 1);
 				if (info.left_justify)
 				{
 					int w = info.min_width - info.width;
 					while (w --> 0)
 					{
 						if (!info.precision_set && info.padding_with_0)
-							write(1, "0", 1);
+							bytes_written +=  write(1, "0", 1);
 						else
-							write(1, " ", 1);
+							bytes_written += write(1, " ", 1);
 					}
 				}
 			}
@@ -234,18 +234,11 @@ int ft_printf(char *fmt, ...)
 		}
 		else
 		{
-			write(1, fmt, 1); // TODO: write fail
+			bytes_written += write(1, fmt, 1); // TODO: write fail
 			fmt++;
 		}
 	}
 	va_end(ap);
 	return (bytes_written);
-}	
-
-int main()
-{
-	#define T(fmt, ...) printf(fmt"\n", __VA_ARGS__), fflush(stdout), ft_printf(fmt"\n", __VA_ARGS__)
-	//T("%---+++ 00 30.20dt", 42);
-	//T("%+10.0dt", 0);
-	//T("%010.5d", 42);
 }
+

@@ -38,6 +38,6 @@ typedef struct ft_printf_info_s {
 
 }	ft_printf_info_t;
 
-int ft_printf(char *format, ...);
-void	ft_putnbr_base(size_t nbr, char *base);
+int ft_printf(const char *format, ...);
+int	ft_putnbr_base(size_t nbr, char *base);
 #endif
