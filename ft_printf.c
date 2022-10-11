@@ -48,7 +48,7 @@ int int_len(int n)
 	return (res);
 }
 
-int uint_len(int n, int hex)
+int uint_len(size_t n, int hex)
 {
 	int res;
 
@@ -144,6 +144,7 @@ int ft_printf(const char *fmt, ...)
 		if (*fmt == '%')
 		{
 			fmt++;
+			ft_memset(&info, 0, sizeof(info));
 			add_flags(&fmt, &info);
 			if (!ft_strchr("cspdiuxX%", *fmt))//todo: are u sure we should continue?
 				continue;
