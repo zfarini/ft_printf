@@ -6,7 +6,7 @@
 /*   By: zfarini <zfarini@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/11 13:44:40 by zfarini           #+#    #+#             */
-/*   Updated: 2022/10/11 17:03:10 by zfarini          ###   ########.fr       */
+/*   Updated: 2022/10/17 19:53:30 by zfarini          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -315,6 +315,24 @@ int	print_format(const char **fmt, va_list ap)
 	*fmt = *fmt + 1;
 	return (info.bytes_written);
 }
+
+
+//todo: we can't pass va_list???
+/*
+	-> read the flags "-+ #0"
+	-> read width (number) || '*' and then read it by va_args
+	-> read precision (.number)
+	-> read the specifier
+	-> get the value from va_arg
+	
+	-> print the padding width (spaces)
+	-> print the sign
+	-> print the padding zeroes (width, precision)
+	-> print "0x" || "0X" if c is in "pxX"
+	-> print the value
+	-> print the padding (spaces, specified with '-')
+*/
+//todo: can we use libft? if so clone the directory and make your makefile compile it first
 
 int	ft_printf(const char *fmt, ...)
 {
