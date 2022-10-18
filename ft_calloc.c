@@ -6,21 +6,20 @@
 /*   By: zfarini <zfarini@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/06 17:44:15 by zfarini           #+#    #+#             */
-/*   Updated: 2022/10/06 22:40:50 by zfarini          ###   ########.fr       */
+/*   Updated: 2022/10/13 17:32:46 by zfarini          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
-#include <errno.h>
 
 void	*ft_calloc(size_t count, size_t size)
 {
-	void	*mem;
+	void	*res;
 
-	if (!size || count > SIZE_MAX / size)
+	if (size && count > SIZE_MAX / size)
 		return (0);
-	mem = malloc(count * size);
-	if (mem)
-		ft_bzero(mem, count * size);
-	return (mem);
+	res = malloc(count * size);
+	if (res)
+		ft_bzero(res, count * size);
+	return (res);
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_strchr.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: zfarini <zfarini@student.42.fr>            +#+  +:+       +#+        */
+/*   By: zfarini <zfarini@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/06 17:33:19 by zfarini           #+#    #+#             */
-/*   Updated: 2022/10/10 11:34:26 by zfarini          ###   ########.fr       */
+/*   Updated: 2022/10/18 14:15:45 by zfarini          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ char	*ft_strchr(const char *s, int c)
 			return ((char *)s);
 		s++;
 	}
-	if (!c)
-		return ((char *)s);
+	//if (*s == (char)c)
+	//	return ((char *)s);
 	return (0);
 }

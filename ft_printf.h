@@ -1,35 +1,40 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdarg.h>
-#include <assert.h>
-#include "libft.h"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ft_printf.h                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: zfarini <zfarini@student.1337.ma>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/10/18 12:43:10 by zfarini           #+#    #+#             */
+/*   Updated: 2022/10/18 14:24:19 by zfarini          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #ifndef FT_PRINTF_H
-#define FT_PRINTF_H
+# define FT_PRINTF_H
+# include <stdarg.h>
+# include <stdarg.h>
+# include "libft/libft.h"
+# include <assert.h>
 
+typedef struct s_printf_info {
+    char sp;
+    int plus;
+    int minus;
+    int hash;
+    int zero;
+    int space;
+    int width;
+    int min_width; // should this be int?
+    int precision; // same as above
+    int ivalue;
+    int digit_count;
+    int write_failed;
+    int bytes_written;
+    size_t  uvalue;
+}   t_printf_info;
 
-typedef struct s_ft_printf_info {
-	
-	int left_justify;
-	int force_sign;
-	int force_space;
-	int hash;
-	int padding_with_0;
-	int min_width;
-	int precision_width;
-	int precision_set;
+int ft_printf(const char *fmt, ...);
+int ft_vprintf(const char *fmt, va_list ap);
 
-	int is_hex;
-	int width;
-	char sp;
-	int i_value;
-	int bytes_written;
-	int write_failed;
-	size_t u_value;
-
-}	t_ft_printf_info;
-
-int ft_printf(const char *format, ...);
-int	ft_putnbr_base(size_t nbr, char *base);
 #endif

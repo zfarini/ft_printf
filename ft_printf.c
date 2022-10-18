@@ -5,188 +5,26 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: zfarini <zfarini@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/10/11 13:44:40 by zfarini           #+#    #+#             */
-/*   Updated: 2022/10/17 19:53:30 by zfarini          ###   ########.fr       */
+/*   Created: 2022/10/18 14:24:11 by zfarini           #+#    #+#             */
+/*   Updated: 2022/10/18 14:35:52 by zfarini          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
 
-void	print(t_ft_printf_info *info, char *s, int cnt)
+/*TODO: ft_strchr also checks for '\0' (fow now I changed it)*/
+
+void	print(t_printf_info *info, char *s, size_t len)
 {
 	int	b;
-
-	b = write(1, s, cnt);
+	
+	b = write(3, s, len);
 	if (b < 0)
 		info->write_failed = 1;
 	info->bytes_written += b;
 }
 
-int	int_len(int n)
-{
-	int	res;
-
-	res = (n == 0);
-	while (n)
-	{
-		res++;
-		n /= 10;
-	}
-	return (res);
-}
-
-int	uint_len(size_t n, int hex)
-{
-	int	res;
-
-	res = (n == 0);
-	while (n)
-	{
-		res++;
-		if (hex)
-			n /= 16;
-		else
-			n /= 10;
-	}
-	return (res);
-}
-
-void	find_value_width(t_ft_printf_info *info)
-{
-	if (ft_strchr("id", info->sp))
-		info->width += int_len(info->i_value);
-	else if (ft_strchr("xXup", info->sp))
-		info->width += uint_len(info->u_value, info->is_hex);
-	else if (info->sp == 's')
-	{
-		if (info->precision_set
-			&& ft_strlen((char *)info->u_value) > (size_t)info->precision_width)
-			info->width += info->precision_width;
-		else
-			info->width += ft_strlen((char *)info->u_value);
-	}
-	else if (info->sp == 'c')
-		info->width++;
-	else
-		assert(0);
-}
-
-void	find_width(t_ft_printf_info *info)
-{
-	find_value_width(info);
-	if (ft_strchr("idxXu", info->sp) && info->precision_width > info->width)
-		info->width = info->precision_width;
-	if (ft_strchr("id", info->sp)
-		&& (info->force_sign
-			|| info->force_space
-			|| info->i_value < 0))
-		info->width++;
-	if (info->is_hex
-		&& (info->sp == 'p' || info->hash)
-		&& (info->u_value || info->sp == 'p'))
-		info->width += 2;
-	if (info->precision_set && !info->precision_width
-		&& ft_strchr("diuxX", info->sp)
-		&& !info->i_value && !info->u_value)
-		info->width--;
-}
-
-void	add_point_flag(const char **fmt, t_ft_printf_info *info)
-{
-	if (**fmt == '.')
-	{
-		info->precision_set = 1;
-		*fmt = *fmt + 1;
-		while (ft_isdigit(**fmt))
-		{
-			info->precision_width = info->precision_width * 10 + (**fmt - '0');
-			*fmt = *fmt + 1;
-		}
-	}
-}
-
-void	add_flags(const char **fmt, t_ft_printf_info *info)
-{
-	while (ft_strchr("+- #0", **fmt))
-	{
-		if (**fmt == '+')
-			info->force_sign = 1;
-		else if (**fmt == '-')
-			info->left_justify = 1;
-		else if (**fmt == ' ')
-			info->force_space = 1;
-		else if (**fmt == '#')
-			info->hash = 1;
-		else if (**fmt == '0')
-			info->padding_with_0 = 1;
-		*fmt = *fmt + 1;
-	}
-	while (ft_isdigit(**fmt))
-	{
-		info->min_width = info->min_width * 10 + (**fmt - '0');
-		*fmt = *fmt + 1;
-	}
-	add_point_flag(fmt, info);
-}
-
-/*!TODO: make sure we can pass ap as value*/
-void	read_value_and_find_width(va_list ap, char c, t_ft_printf_info *info)
-{
-	info->sp = c;
-	if (ft_strchr("id", c))
-		info->i_value = va_arg(ap, int);
-	else if (ft_strchr("xXu", c))
-		info->u_value = va_arg(ap, unsigned int);
-	else if (c == 'p')
-		info->u_value = (size_t)va_arg(ap, void *);
-	else if (c == 's')
-	{
-		info->u_value = (size_t)va_arg(ap, char *);
-		if (!info->u_value)
-			info->u_value = (size_t)"(null)";
-	}
-	else if (c == 'c')
-		info->i_value = va_arg(ap, int);
-	if (ft_strchr("xXp", c))
-		info->is_hex = 1;
-	find_width(info);
-}
-
-void	print_sign(t_ft_printf_info *info)
-{
-	if (info->i_value < 0)
-		print(info, "-", 1);
-	else if (info->force_sign)
-		print(info, "+", 1);
-	else if (info->force_space)
-		print(info, " ", 1);
-}
-
-/*TODO: check this again */
-void	print_min_width(t_ft_printf_info *info)
-{
-	int	w;
-
-	w = info->min_width - info->width;
-	while (w > 0)
-	{
-		if (!info->precision_set && info->padding_with_0)
-			print(info, "0", 1);
-		else
-			print(info, " ", 1);
-		w--;
-	}
-}
-
-void	print_0x(t_ft_printf_info *info)
-{
-	if (info->sp == 'p' || (info->sp == 'x' && info->hash && info->u_value))
-		print(info, "0x", 2);
-	if (info->hash && info->sp == 'X' && info->u_value)
-		print(info, "0X", 2);
-}
-
-void	putnbr(t_ft_printf_info *info, int n)
+void	print_int(t_printf_info *info, int n)
 {
 	int		p;
 	int		x;
@@ -210,31 +48,7 @@ void	putnbr(t_ft_printf_info *info, int n)
 	}
 }
 
-void	print_missing_zeroes(t_ft_printf_info *info)
-{
-	int	w;
-
-	if (ft_strchr("id", info->sp))
-	{
-		w = info->precision_width - int_len(info->i_value);
-		while (w > 0)
-		{
-			print(info, "0", 1);
-			w--;
-		}
-	}
-	if (ft_strchr("xXu", info->sp))
-	{
-		w = info->precision_width - uint_len(info->u_value, info->sp != 'u');
-		while (w > 0)
-		{
-			print(info, "0", 1);
-			w--;
-		}
-	}
-}
-
-void	putnbr_base(t_ft_printf_info *info, size_t nbr, char *base)
+void	print_uint_base(t_printf_info *info, size_t nbr, char *base)
 {
 	size_t	divisor;
 	size_t	nb_copy;
@@ -255,109 +69,241 @@ void	putnbr_base(t_ft_printf_info *info, size_t nbr, char *base)
 	}
 }
 
-void	print_the_actual_object(t_ft_printf_info *info)
+void read_precision(char **fmt, t_printf_info *info)
+{
+	info->precision = -1;
+	if (**fmt == '.')
+	{
+		*fmt = *fmt + 1;
+		info->precision = 0;
+		while (ft_isdigit(**fmt))
+		{
+			info->precision = info->precision * 10 + (**fmt - '0');
+			*fmt = *fmt + 1;
+		}
+	}
+}
+
+void read_format_specifier(char **fmt, t_printf_info *info)
+{
+	while (ft_strchr("+- #0", **fmt))
+	{
+		if (**fmt == '+')
+			info->plus = 1;
+		else if (**fmt == '-')
+			info->minus = 1;
+		else if (**fmt == ' ')
+			info->space = 1;
+		else if (**fmt == '#')
+			info->hash = 1;
+		else if (**fmt == '0')
+			info->zero = 1;
+		else
+			assert(0);
+		*fmt = *fmt + 1;
+	}
+	while (ft_isdigit(**fmt))
+	{
+		info->min_width = info->min_width * 10 + (**fmt - '0');
+		*fmt = *fmt + 1;
+	}
+	read_precision(fmt, info);
+	info->sp = **fmt;
+	if (**fmt) // this is for '\0' check this later
+		*fmt = *fmt + 1;
+}
+
+int	int_digit_count(t_printf_info *info)
+{
+	int	res;
+	int n;
+
+	n = info->ivalue;
+	res = (n == 0);
+	info->digit_count += (n == 0);
+	while (n)
+	{
+		res++;
+		n /= 10;
+		info->digit_count++;
+	}
+	return (res);
+}
+
+int	uint_digit_count(t_printf_info *info)
+{
+	int	res;
+	size_t  n;
+
+	n = info->uvalue;
+	res = (n == 0);
+	info->digit_count = (n == 0);
+	while (n)
+	{
+		res++;
+		if (ft_strchr("pxX", info->sp))
+			n /= 16;
+		else
+			n /= 10;
+		info->digit_count++;
+	}
+	return (res);
+}
+
+void	find_the_value_width(t_printf_info *info)
+{
+	if (ft_strchr("id", info->sp))
+		info->width += int_digit_count(info);
+	else if (ft_strchr("xXup", info->sp))
+		info->width += uint_digit_count(info);
+	else if (info->sp == 's')
+	{
+		if (!info->uvalue)
+			info->uvalue = (size_t)"(null)";
+		if (info->precision >= 0 && ft_strlen((char *)info->uvalue) > (size_t)info->precision)
+			info->width += info->precision;
+		else
+			info->width += ft_strlen((char *)info->uvalue);
+	}
+	else if (info->sp == 'c')
+		info->width++;//todo: are u sure about this?
+}
+
+void find_the_formatted_value_width(t_printf_info *info)
+{
+	//the order matter here
+	find_the_value_width(info);
+	
+	if (ft_strchr("idxXup", info->sp) && info->precision > info->width)
+		info->width = info->precision;
+	//printing 0 with precision = 0 doesn't print anything
+	if (ft_strchr("idxXu", info->sp) && !info->precision && !info->ivalue && !info->uvalue)
+		info->width--;
+	if (ft_strchr("id", info->sp) && (info->plus || info->space || info->ivalue < 0))
+		info->width++;
+	if (info->sp == 'p' || (info->hash && info->uvalue))
+		info->width += 2;
+
+}
+
+void print_the_value(t_printf_info *info)
 {
 	int	i;
 	int	l;
 
-	if (info->precision_set && !info->precision_width
-		&& ft_strchr("diuxX", info->sp)
-		&& !info->i_value && !info->u_value)
-		;
-	else if (ft_strchr("id", info->sp))
-		putnbr(info, info->i_value);
-	else if (info->sp == 'u')
-		putnbr_base(info, info->u_value, "0123456789");
-	else if (ft_strchr("xp", info->sp))
-		putnbr_base(info, info->u_value, "0123456789abcdef");
+	if (ft_strchr("idxXu", info->sp) && !info->ivalue &&
+		!info->uvalue && !info->precision)
+		return ;
+	if (ft_strchr("id", info->sp))
+		print_int(info, info->ivalue);
+	if (info->sp == 'u')
+		print_uint_base(info, info->uvalue, "0123456789");
+	if (ft_strchr("xp", info->sp))
+		print_uint_base(info, info->uvalue, "0123456789abcdef");
 	else if (info->sp == 'X')
-		putnbr_base(info, info->u_value, "0123456789ABCDEF");
+		print_uint_base(info, info->uvalue, "0123456789ABCDEF");
 	else if (info->sp == 's')
 	{
-		l = ft_strlen((char *)info->u_value);
-		if (info->precision_set && l > info->precision_width)
-			l = info->precision_width;
+		l = ft_strlen((char *)info->uvalue);
+		if (info->precision >= 0 && l > info->precision)
+			l = info->precision;
 		i = 0;
 		while (i < l)
-			print(info, ((char *)info->u_value) + i++, 1);
+			print(info, ((char *)info->uvalue) + i++, 1);
 	}
 	else if (info->sp == 'c')
-		print(info, (char *)&info->i_value, 1);
+		print(info, (char *)&info->ivalue, 1);
+	else if (info->sp == '%')
+		print(info, "%", 1);
 }
 
-/*!!!TODO: handle the case when precision_width = 0 and we should print 0*/
-/*!TODO: should we return when we find an anvalid char?*/
-int	print_format(const char **fmt, va_list ap)
+void	print_n_chars(t_printf_info *info, char c, int n)
 {
-	t_ft_printf_info	info;
-
-	ft_memset(&info, 0, sizeof(info));
-	add_flags(fmt, &info);
-	if (!ft_strchr("cspdiuxX%", **fmt))
-		return (0);
-	if (**fmt == '%')
-		return (write(1, (*fmt)++, 1));
-	read_value_and_find_width(ap, **fmt, &info);
-	if (!info.precision_set && info.padding_with_0 && ft_strchr("id", info.sp))
-		print_sign(&info);
-	if (!info.left_justify)
-		print_min_width(&info);
-	if (ft_strchr("id", info.sp)
-		&& (info.precision_set || !info.padding_with_0))
-		print_sign(&info);
-	print_0x(&info);
-	print_missing_zeroes(&info);
-	print_the_actual_object(&info);
-	if (info.left_justify)
-		print_min_width(&info);
-	if (info.write_failed)
-		info.bytes_written = -1;
-	*fmt = *fmt + 1;
-	return (info.bytes_written);
+	while (n--)
+		print(info, &c, 1);
 }
 
-
-//todo: we can't pass va_list???
-/*
-	-> read the flags "-+ #0"
-	-> read width (number) || '*' and then read it by va_args
-	-> read precision (.number)
-	-> read the specifier
-	-> get the value from va_arg
-	
-	-> print the padding width (spaces)
-	-> print the sign
-	-> print the padding zeroes (width, precision)
-	-> print "0x" || "0X" if c is in "pxX"
-	-> print the value
-	-> print the padding (spaces, specified with '-')
-*/
-//todo: can we use libft? if so clone the directory and make your makefile compile it first
-
-int	ft_printf(const char *fmt, ...)
+void	print_sign(t_printf_info *info)
 {
-	va_list				ap;
-	int					bytes_written;
-	int					b;
+	if (ft_strchr("id", info->sp))
+	{
+		if (info->ivalue < 0)
+			print(info, "-", 1);
+		else if (info->plus)
+			print(info, "+", 1);
+		else if (info->space)
+			print(info, " ", 1);
+	}
+}
 
-	va_start(ap, fmt);
+void	print_0x(t_printf_info *info)
+{
+	if (info->sp == 'p' || (info->hash && info->uvalue))
+	{
+		if (info->sp == 'X')
+			print(info, "0X", 2);
+		else
+			print(info, "0x", 2);
+	}
+}
+
+void print_the_formatted_value(t_printf_info *info)
+{
+	find_the_formatted_value_width(info);
+	if (info->precision >= 0 && ft_strchr("xXuidp", info->sp))
+		info->zero = 0; //todo: is this right?
+	if (!info->zero && !info->minus && info->min_width > info->width)
+		print_n_chars(info, ' ', info->min_width - info->width);
+	print_sign(info);
+	print_0x(info);
+	if (ft_strchr("xXidup", info->sp) && info->digit_count < info->precision)
+		print_n_chars(info, '0', info->precision - info->digit_count);
+	if (info->zero && info->min_width > info->width)
+		print_n_chars(info, '0', info->min_width - info->width);
+	print_the_value(info);
+	if (info->minus)
+		print_n_chars(info, ' ', info->min_width - info->width);
+}
+
+int	ft_vprintf(const char *fmt, va_list ap)
+{
+	t_printf_info	info;
+	int				bytes_written;
+
 	bytes_written = 0;
 	while (*fmt)
 	{
-		if (*fmt == '%')
-		{
-			fmt++;
-			b = print_format(&fmt, ap);
-		}
+		ft_bzero(&info, sizeof(info));
+		if (*fmt != '%')
+			print(&info, fmt++, 1);
 		else
 		{
-			b = write(1, fmt, 1);
 			fmt++;
+			read_format_specifier(&fmt, &info);
+			if (ft_strchr("idc", info.sp))
+				info.ivalue = va_arg(ap, int);
+			else if (ft_strchr("xXu", info.sp))
+				info.uvalue = va_arg(ap, unsigned int);
+			else if (info.sp == 's')
+				info.uvalue = (size_t)va_arg(ap, char *);
+			else if (info.sp == 'p')
+				info.uvalue = (size_t)va_arg(ap, void *);
+			print_the_formatted_value(&info);
 		}
-		if (b < 0)
+		if (info.write_failed)
 			return (-1);
-		bytes_written += b;
+		bytes_written += info.bytes_written;
 	}
+	return (bytes_written);
+}
+
+int	ft_printf(const char *fmt, ...)
+{
+	va_list	ap;
+	int		bytes_written;
+
+	va_start(ap, fmt);
+	bytes_written = ft_vprintf(fmt, ap);
 	va_end(ap);
 	return (bytes_written);
 }

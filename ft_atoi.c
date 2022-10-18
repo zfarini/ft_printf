@@ -3,15 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   ft_atoi.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: zfarini <zfarini@student.42.fr>            +#+  +:+       +#+        */
+/*   By: zfarini <zfarini@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/06 17:43:17 by zfarini           #+#    #+#             */
-/*   Updated: 2022/10/07 13:19:53 by zfarini          ###   ########.fr       */
+/*   Updated: 2022/10/13 17:31:53 by zfarini          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
-#include <stdio.h>
 
 static int	ft_isspace(int c)
 {
@@ -36,8 +35,11 @@ int	ft_atoi(const char *str)
 	res = 0;
 	while (ft_isdigit(*str))
 	{
-		res = res * 10 + (*str - '0');
+		if (sign == -1)
+			res = res * 10 - (*str - '0');
+		else
+			res = res * 10 + (*str - '0');
 		str++;
 	}
-	return (res * sign);
+	return (res);
 }
