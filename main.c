@@ -35,7 +35,7 @@ void T(char *fmt, ...)
     char s1[4096];
     int b1 = vsprintf(s1, fmt, ap);
     open("out", O_WRONLY | O_TRUNC, 0);
-    int b2 = ft_vprintf(fmt, ap2);
+	int b2 = ft_vprintf(fmt, ap2);
     close(3);
     char *s2 = read_file("out");
     if (strcmp(s1, s2) || b1 != b2)
@@ -96,7 +96,7 @@ int main(void)
 	//T("04.d", 3);
 	//ft_printf("%%");
 	T("%05c", 421);
-	return (0);
+	//return (0);
 	char *s = malloc(2);
 	s[0] = 'a';
 	s[1] = 'b';
