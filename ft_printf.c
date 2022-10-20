@@ -6,19 +6,24 @@
 /*   By: zfarini <zfarini@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 14:24:11 by zfarini           #+#    #+#             */
-/*   Updated: 2022/10/18 14:35:52 by zfarini          ###   ########.fr       */
+/*   Updated: 2022/10/20 14:16:26 by zfarini          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
 
-/*TODO: ft_strchr also checks for '\0' (fow now I changed it)*/
 
-void	print(t_printf_info *info, char *s, size_t len)
+/*
+	TODO: ft_strchr also checks for '\0' (fow now I changed it)
+	TODO: printf("%p", 0) printf (nil) on linux but 0x0 on mac
+	TODO: can size_t hold all pointers addresses? (if not then '%p' && '%s' should have a special ptr value)
+*/
+void	print(t_printf_info *info, const char *s, size_t len)
 {
 	int	b;
 	
 	b = write(3, s, len);
+	//b = write(1, s, len)
 	if (b < 0)
 		info->write_failed = 1;
 	info->bytes_written += b;
@@ -69,7 +74,26 @@ void	print_uint_base(t_printf_info *info, size_t nbr, char *base)
 	}
 }
 
-void read_precision(char **fmt, t_printf_info *info)
+void	print_ptr(t_printf_info *info, uintptr_t p)
+{
+	uintptr_t	divisor;
+	uintptr_t	tmp;
+
+	divisor = 1;
+	tmp = p;
+	while (tmp >= 16)
+	{
+		divisor *= 16;
+		tmp /= 16;
+	}
+	while (divisor > 0)
+	{
+		print(info, &"0123456789abcdef"[(p / divisor) % 16], 1);
+		divisor /= 16;
+	}
+}
+
+void read_precision(const char **fmt, t_printf_info *info)
 {
 	info->precision = -1;
 	if (**fmt == '.')
@@ -84,7 +108,7 @@ void read_precision(char **fmt, t_printf_info *info)
 	}
 }
 
-void read_format_specifier(char **fmt, t_printf_info *info)
+void read_format_specifier(const char **fmt, t_printf_info *info)
 {
 	while (ft_strchr("+- #0", **fmt))
 	{
@@ -99,7 +123,7 @@ void read_format_specifier(char **fmt, t_printf_info *info)
 		else if (**fmt == '0')
 			info->zero = 1;
 		else
-			assert(0);
+			assert(0);//todo: remove me
 		*fmt = *fmt + 1;
 	}
 	while (ft_isdigit(**fmt))
@@ -150,20 +174,39 @@ int	uint_digit_count(t_printf_info *info)
 	return (res);
 }
 
+int ptr_digit_count(t_printf_info *info)
+{
+	int			res;
+	uintptr_t 	n;
+
+	n = (uintptr_t)info->ptr;
+	res = (n == 0);
+	info->digit_count = (n == 0);
+	while (n)
+	{
+		res++;
+		n /= 16;
+		info->digit_count++;
+	}
+	return (res);
+}
+
 void	find_the_value_width(t_printf_info *info)
 {
 	if (ft_strchr("id", info->sp))
 		info->width += int_digit_count(info);
-	else if (ft_strchr("xXup", info->sp))
+	else if (ft_strchr("xXu", info->sp))
 		info->width += uint_digit_count(info);
+	else if (info->sp == 'p')
+		info->width += ptr_digit_count(info);
 	else if (info->sp == 's')
 	{
-		if (!info->uvalue)
-			info->uvalue = (size_t)"(null)";
-		if (info->precision >= 0 && ft_strlen((char *)info->uvalue) > (size_t)info->precision)
+		if (!info->ptr)
+			info->ptr = "(null)";
+		if (info->precision >= 0 && ft_strlen(info->ptr) > (size_t)info->precision)
 			info->width += info->precision;
 		else
-			info->width += ft_strlen((char *)info->uvalue);
+			info->width += ft_strlen((char *)info->ptr);
 	}
 	else if (info->sp == 'c')
 		info->width++;//todo: are u sure about this?
@@ -171,56 +214,59 @@ void	find_the_value_width(t_printf_info *info)
 
 void find_the_formatted_value_width(t_printf_info *info)
 {
-	//the order matter here
 	find_the_value_width(info);
-	
 	if (ft_strchr("idxXup", info->sp) && info->precision > info->width)
 		info->width = info->precision;
-	//printing 0 with precision = 0 doesn't print anything
 	if (ft_strchr("idxXu", info->sp) && !info->precision && !info->ivalue && !info->uvalue)
 		info->width--;
 	if (ft_strchr("id", info->sp) && (info->plus || info->space || info->ivalue < 0))
 		info->width++;
 	if (info->sp == 'p' || (info->hash && info->uvalue))
 		info->width += 2;
+}
 
+//!!!TODO: if the precision is set then the string doesn't need a terminating '\0'
+void print_str(t_printf_info *info)
+{
+	int	l;
+	
+	l = ft_strlen((char *)info->ptr);
+	if (info->precision >= 0 && l > info->precision)
+		l = info->precision;
+	print(info, (char *)info->ptr, l);
 }
 
 void print_the_value(t_printf_info *info)
 {
-	int	i;
-	int	l;
-
 	if (ft_strchr("idxXu", info->sp) && !info->ivalue &&
 		!info->uvalue && !info->precision)
 		return ;
 	if (ft_strchr("id", info->sp))
 		print_int(info, info->ivalue);
-	if (info->sp == 'u')
+	else if (info->sp == 'u')
 		print_uint_base(info, info->uvalue, "0123456789");
-	if (ft_strchr("xp", info->sp))
+	else if (info->sp == 'x')
 		print_uint_base(info, info->uvalue, "0123456789abcdef");
 	else if (info->sp == 'X')
 		print_uint_base(info, info->uvalue, "0123456789ABCDEF");
+	else if (info->sp == 'p')
+		print_ptr(info, (uintptr_t)info->ptr);
 	else if (info->sp == 's')
-	{
-		l = ft_strlen((char *)info->uvalue);
-		if (info->precision >= 0 && l > info->precision)
-			l = info->precision;
-		i = 0;
-		while (i < l)
-			print(info, ((char *)info->uvalue) + i++, 1);
-	}
+		print_str(info);
 	else if (info->sp == 'c')
-		print(info, (char *)&info->ivalue, 1);
+		print(info, (unsigned char *)&info->ivalue, 1);
 	else if (info->sp == '%')
 		print(info, "%", 1);
 }
 
 void	print_n_chars(t_printf_info *info, char c, int n)
 {
-	while (n--)
+	
+	while (n > 0)
+	{
 		print(info, &c, 1);
+		n--;
+	}
 }
 
 void	print_sign(t_printf_info *info)
@@ -246,19 +292,19 @@ void	print_0x(t_printf_info *info)
 			print(info, "0x", 2);
 	}
 }
-
+/*NOTE: if the precesion is set then 0 flag is ignored*/
 void print_the_formatted_value(t_printf_info *info)
 {
 	find_the_formatted_value_width(info);
-	if (info->precision >= 0 && ft_strchr("xXuidp", info->sp))
-		info->zero = 0; //todo: is this right?
-	if (!info->zero && !info->minus && info->min_width > info->width)
+	if (info->precision >= 0 || info->minus)
+		info->zero = 0;
+	if (!info->zero && !info->minus)
 		print_n_chars(info, ' ', info->min_width - info->width);
 	print_sign(info);
 	print_0x(info);
-	if (ft_strchr("xXidup", info->sp) && info->digit_count < info->precision)
+	if (ft_strchr("xXidu", info->sp))
 		print_n_chars(info, '0', info->precision - info->digit_count);
-	if (info->zero && info->min_width > info->width)
+	if (info->zero)
 		print_n_chars(info, '0', info->min_width - info->width);
 	print_the_value(info);
 	if (info->minus)
@@ -285,9 +331,9 @@ int	ft_vprintf(const char *fmt, va_list ap)
 			else if (ft_strchr("xXu", info.sp))
 				info.uvalue = va_arg(ap, unsigned int);
 			else if (info.sp == 's')
-				info.uvalue = (size_t)va_arg(ap, char *);
+				info.ptr = va_arg(ap, const char *);
 			else if (info.sp == 'p')
-				info.uvalue = (size_t)va_arg(ap, void *);
+				info.ptr = va_arg(ap, void *);
 			print_the_formatted_value(&info);
 		}
 		if (info.write_failed)

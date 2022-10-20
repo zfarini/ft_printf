@@ -6,7 +6,7 @@
 /*   By: zfarini <zfarini@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:43:10 by zfarini           #+#    #+#             */
-/*   Updated: 2022/10/18 14:24:19 by zfarini          ###   ########.fr       */
+/*   Updated: 2022/10/19 11:22:28 by zfarini          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 # define FT_PRINTF_H
 # include <stdarg.h>
 # include <stdarg.h>
-# include "libft/libft.h"
+# include "libft.h"
 # include <assert.h>
 
 typedef struct s_printf_info {
@@ -32,6 +32,7 @@ typedef struct s_printf_info {
     int write_failed;
     int bytes_written;
     size_t  uvalue;
+	void	*ptr;
 }   t_printf_info;
 
 int ft_printf(const char *fmt, ...);
