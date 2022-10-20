@@ -40,11 +40,11 @@ void T(char *fmt, ...)
     char *s2 = read_file("out");
     if (strcmp(s1, s2) || b1 != b2)
     {
-        printf("TEST %d: \033[1;31mFAILED\033[0m\nfmt=\"%s\"\ns1 = \"%s\", b1 = %d\ns2 = \"%s\", b2 = %d\n", 
+        printf("TEST %d: \033[1;31mFAILED\033[0m\nfmt=\"%s\"\ns1 = \"%s\", b1 = %d\ns2 = \"%s\", b2 = %d\n",
                 test_number, fmt, s1, b1, s2, b2);
 		assert(0);
     }
-    else 
+    else
         printf("TEST %d: OK\n", test_number);
 	free(s2);
     va_end(ap);
@@ -57,7 +57,7 @@ void T(char *fmt, ...)
 int main(void)
 { //todo: for whatever reason on linux print("%p", 0) is (nil)
 	//flag '0' is undefined with 'sp'
-	    //#define T(...) printf(__VA_ARGS__); printf("\n");ft_printf(__VA_ARGS__) ; ft_printf("\n"); 
+	    //#define T(...) printf(__VA_ARGS__); printf("\n");ft_printf(__VA_ARGS__) ; ft_printf("\n");
 	#if 0
     T(1, "");
     T(2, "hello world");
@@ -93,11 +93,14 @@ int main(void)
 	T(27, "%#5.2x %-10.8d %-35p %-14.6s %5.s %15.5s", 0xa, 0, (void *)42, "0000hello world", "00", "0000");
 	T(28, "%0-5d", 4);
 	#endif
+	//T("04.d", 3);
+	//ft_printf("%%");
+	T("%05c", 421);
+	return (0);
 	char *s = malloc(2);
 	s[0] = 'a';
 	s[1] = 'b';
 	T("%.2s", s);
-	return (0);
 	T("%c", -42);
 	T("%.u", 0);
 	T("%0-5d", 4);
@@ -108,7 +111,7 @@ int main(void)
 	T("a%da", 100);
 	T("a%da", INT32_MIN);
 	T("a%da", 0);
-	
+
 	printf("--> \"%%u\" SIMPLE\n");
     T("%u", 100);
 	T("%u", UINT32_MAX);
@@ -117,7 +120,7 @@ int main(void)
 	T("a%ua", 100);
 	T("a%ua", UINT32_MAX);
 	T("a%ua", 0);
-	
+
 	printf("--> \"%%x && %%X\" SIMPLE\n");
     T("%x", 100);
 	T("%x", UINT32_MAX);
@@ -141,7 +144,7 @@ int main(void)
 	T("a%pa", (void *)0x100);
 	T("a%pa", (void *)UINT64_MAX);
 	T("a%pa", (void *)0);
-	
+
 	printf("--> \"%%s\" SIMPLE\n");
     T("%s", "Hello");
 	T("%s", "");
@@ -150,13 +153,13 @@ int main(void)
 	T("a%sa", "");
 	T("a%sa", NULL);
 	T("%s", "%15d");
-	
+
 	printf("--> \"%%c\" SIMPLE\n");
     T("%c", 97);
 	T("a%ca", 97);
 	// T("%c", 0);  // TODO
 	// T("a%ca", 0);	// TODO
-	
+
 	/*
 	*******************************************
 	*******************************************
@@ -173,7 +176,7 @@ int main(void)
 	T("%4d", 0);
 	T("%1d", 0);
 	T("a%1da", 0);
-	
+
 	printf("--> \"%%p\" MIN_WIDTH\n");
 	T("%2p", (void *)100);
 	T("%3p", (void *)100);
@@ -183,7 +186,7 @@ int main(void)
     T("%4p", (void *)0x0);
 	T("%1p", (void *)0x0);
 	T("a%1pa", (void *)0x0);
-	
+
 	printf("--> \"%%s\" MIN_WIDTH\n");
 	SP("EXPECTED","--> \"%%s\" MIN_WIDTH\n");
 	SP("TESTS","--> \"%%s\" MIN_WIDTH\n");
@@ -198,7 +201,7 @@ int main(void)
 	T("%4s", "");
 	T("%1s", "");
 	T("a%1sa", "");
-	
+
 	/*
 	*******************************************
 	*******************************************
@@ -216,7 +219,7 @@ int main(void)
 	T("%-4d", 0);
 	T("%-1d", 0);
 	T("a%-1da", 0);
-	
+
 	printf("--> \"%%p\" MIN_WIDTH AND -\n");
 	SP("EXPECTED","--> \"%%p\" MIN_WIDTH AND -\n");
 	SP("TESTS","--> \"%%p\" MIN_WIDTH AND -\n");
@@ -228,7 +231,7 @@ int main(void)
     T("%-4p", (void *)0x0);
 	T("%-1p", (void *)0x0);
 	T("a%-1pa", (void *)0x0);
-	
+
 	printf("--> \"%%s\" MIN_WIDTH AND -\n");
 	SP("EXPECTED","--> \"%%s\" MIN_WIDTH AND -\n");
 	SP("TESTS","--> \"%%s\" MIN_WIDTH AND -\n");
@@ -243,7 +246,7 @@ int main(void)
 	T("%-4s", "");
 	T("%-1s", "");
 	T("a%-1sa", "");
-	
+
 	/*
 	*******************************************
 	*******************************************
@@ -261,7 +264,7 @@ int main(void)
 	T("%04d", 0);
 	T("%01d", 0);
 	T("a%01da", 0);
-	
+
 	/*
 	*******************************************
 	*******************************************
@@ -317,7 +320,7 @@ int main(void)
     T("%4.3p", (void *)0x0);
 	T("%1.3p", (void *)0x0);
 	T("a%1.3pa", (void *)0x0);*/
-	
+
 	printf("--> \"%%s\" MIN_WIDTH AND .\n");
 	SP("EXPECTED","--> \"%%s\" MIN_WIDTH AND .\n");
 	SP("TESTS","--> \"%%s\" MIN_WIDTH AND .\n");

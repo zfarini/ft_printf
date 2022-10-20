@@ -6,7 +6,7 @@
 /*   By: zfarini <zfarini@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:43:10 by zfarini           #+#    #+#             */
-/*   Updated: 2022/10/19 11:22:28 by zfarini          ###   ########.fr       */
+/*   Updated: 2022/10/20 21:05:22 by zfarini          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ typedef struct s_printf_info {
     int write_failed;
     int bytes_written;
     size_t  uvalue;
-	void	*ptr;
+	const void	*ptr;
 }   t_printf_info;
 
 int ft_printf(const char *fmt, ...);
