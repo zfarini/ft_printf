@@ -6,16 +6,18 @@
 /*   By: zfarini <zfarini@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:43:10 by zfarini           #+#    #+#             */
-/*   Updated: 2022/10/20 22:54:23 by zfarini          ###   ########.fr       */
+/*   Updated: 2022/10/20 23:07:46 by zfarini          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef FT_PRINTF_H
 # define FT_PRINTF_H
 # include <stdarg.h>
-# include <stdarg.h>
 # include "../libft/libft.h"
-# include <assert.h>
+
+# define BASE_10 "0123456789"
+# define BASE_16_LOWERCASE "0123456789abcdef"
+# define BASE_16_UPPERCASE "0123456789ABCDEF"
 
 typedef struct s_printf_info {
 	char			sp;
@@ -24,13 +26,13 @@ typedef struct s_printf_info {
 	int				hash;
 	int				zero;
 	int				space;
-	int				width;
 	int				min_width;
 	int				precision;
-	int				ivalue;
+	int				width;
 	int				digit_count;
 	int				write_failed;
 	int				bytes_written;
+	int				ivalue;
 	unsigned int	uvalue;
 	const void		*ptr;
 }			t_printf_info;

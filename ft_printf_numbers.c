@@ -6,7 +6,7 @@
 /*   By: zfarini <zfarini@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/20 22:23:07 by zfarini           #+#    #+#             */
-/*   Updated: 2022/10/20 22:54:41 by zfarini          ###   ########.fr       */
+/*   Updated: 2022/10/20 23:01:41 by zfarini          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ void	print_ptr(t_printf_info *info, uintptr_t p)
 	}
 	while (divisor > 0)
 	{
-		print(info, &"0123456789abcdef"[(p / divisor) % 16], 1);
+		print(info, &BASE_16_LOWERCASE[(p / divisor) % 16], 1);
 		divisor /= 16;
 	}
 }

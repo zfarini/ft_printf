@@ -6,13 +6,12 @@
 /*   By: zfarini <zfarini@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/20 22:30:32 by zfarini           #+#    #+#             */
-/*   Updated: 2022/10/20 22:54:47 by zfarini          ###   ########.fr       */
+/*   Updated: 2022/10/20 23:06:48 by zfarini          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
 
-//todo: we can join this with the function below
 void	read_precision(const char **fmt, t_printf_info *info)
 {
 	info->precision = -1;

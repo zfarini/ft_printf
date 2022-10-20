@@ -6,7 +6,7 @@
 /*   By: zfarini <zfarini@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 14:24:11 by zfarini           #+#    #+#             */
-/*   Updated: 2022/10/20 22:51:20 by zfarini          ###   ########.fr       */
+/*   Updated: 2022/10/20 23:02:35 by zfarini          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,11 +37,11 @@ void	print_the_value(t_printf_info *info)
 	if (ft_strchr("id", info->sp))
 		print_int(info, info->ivalue);
 	else if (info->sp == 'u')
-		print_uint_base(info, info->uvalue, "0123456789");
+		print_uint_base(info, info->uvalue, BASE_10);
 	else if (info->sp == 'x')
-		print_uint_base(info, info->uvalue, "0123456789abcdef");
+		print_uint_base(info, info->uvalue, BASE_16_LOWERCASE);
 	else if (info->sp == 'X')
-		print_uint_base(info, info->uvalue, "0123456789ABCDEF");
+		print_uint_base(info, info->uvalue, BASE_16_UPPERCASE);
 	else if (info->sp == 'p')
 		print_ptr(info, (uintptr_t)info->ptr);
 	else if (info->sp == 's')

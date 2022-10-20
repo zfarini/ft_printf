@@ -6,7 +6,7 @@
 /*   By: zfarini <zfarini@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/20 22:21:21 by zfarini           #+#    #+#             */
-/*   Updated: 2022/10/20 22:55:06 by zfarini          ###   ########.fr       */
+/*   Updated: 2022/10/20 23:09:17 by zfarini          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,56 +14,47 @@
 
 int	int_digit_count(t_printf_info *info)
 {
-	int	res;
 	int	n;
 
 	n = info->ivalue;
-	res = (n == 0);
 	info->digit_count += (n == 0);
 	while (n)
 	{
-		res++;
 		n /= 10;
 		info->digit_count++;
 	}
-	return (res);
+	return (info->digit_count);
 }
 
 int	uint_digit_count(t_printf_info *info)
 {
-	int		res;
 	size_t	n;
 
 	n = info->uvalue;
-	res = (n == 0);
 	info->digit_count = (n == 0);
 	while (n)
 	{
-		res++;
 		if (ft_strchr("pxX", info->sp))
 			n /= 16;
 		else
 			n /= 10;
 		info->digit_count++;
 	}
-	return (res);
+	return (info->digit_count);
 }
 
 int	ptr_digit_count(t_printf_info *info)
 {
-	int			res;
 	uintptr_t	n;
 
 	n = (uintptr_t)info->ptr;
-	res = (n == 0);
 	info->digit_count = (n == 0);
 	while (n)
 	{
-		res++;
 		n /= 16;
 		info->digit_count++;
 	}
-	return (res);
+	return (info->digit_count);
 }
 
 void	print_n_chars(t_printf_info *info, char c, int n)

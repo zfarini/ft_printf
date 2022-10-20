@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <string.h>
+#include <assert.h>
 
 char *read_file(char *filename)
 {
@@ -106,7 +107,7 @@ int main(void)
 	T("%0-5d", 4);
 	 T("%d", 100);
 	T("%d", INT32_MIN);
-	T("%d", INT32_MAX + 95);
+	//T("%d", INT32_MAX + 95);
 	T("%d", 0);
 	T("a%da", 100);
 	T("a%da", INT32_MIN);
