@@ -6,7 +6,7 @@
 /*   By: zfarini <zfarini@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/20 22:21:21 by zfarini           #+#    #+#             */
-/*   Updated: 2022/10/20 22:22:17 by zfarini          ###   ########.fr       */
+/*   Updated: 2022/10/20 22:55:06 by zfarini          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,6 +75,7 @@ void	print_n_chars(t_printf_info *info, char c, int n)
 	}
 }
 
+/*TODO: shouldn't be here*/
 void	print_str(t_printf_info *info)
 {
 	int	l;

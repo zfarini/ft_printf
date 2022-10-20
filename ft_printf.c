@@ -6,14 +6,16 @@
 /*   By: zfarini <zfarini@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 14:24:11 by zfarini           #+#    #+#             */
-/*   Updated: 2022/10/20 22:28:18 by zfarini          ###   ########.fr       */
+/*   Updated: 2022/10/20 22:51:20 by zfarini          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
 
 /*
-	TODO: ft_strchr also checks for '\0' (fow now I changed it)
+TODO: change ft_strchr to something else
+TODO: change names of functions and files
+TOOD: update libft and add more tests
 */
 void	print(t_printf_info *info, const void *buf, size_t len)
 {
