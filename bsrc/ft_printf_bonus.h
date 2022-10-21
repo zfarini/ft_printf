@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_printf.h                                        :+:      :+:    :+:   */
+/*   ft_printf_bonus.h                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: zfarini <zfarini@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:43:10 by zfarini           #+#    #+#             */
-/*   Updated: 2022/10/20 23:07:46 by zfarini          ###   ########.fr       */
+/*   Updated: 2022/10/21 10:38:35 by zfarini          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef FT_PRINTF_H
-# define FT_PRINTF_H
+#ifndef FT_PRINTF_BONUS_H
+# define FT_PRINTF_BONUS_H
 # include <stdarg.h>
 # include "../libft/libft.h"
 
@@ -37,6 +37,7 @@ typedef struct s_printf_info {
 	const void		*ptr;
 }			t_printf_info;
 
+char		*str_find(const char *s, char c);
 int			int_digit_count(t_printf_info *info);
 int			uint_digit_count(t_printf_info *info);
 int			ptr_digit_count(t_printf_info *info);

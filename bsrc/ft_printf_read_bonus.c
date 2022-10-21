@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_printf_read.c                                   :+:      :+:    :+:   */
+/*   ft_printf_read_bonus.c                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: zfarini <zfarini@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/20 22:30:32 by zfarini           #+#    #+#             */
-/*   Updated: 2022/10/20 23:06:48 by zfarini          ###   ########.fr       */
+/*   Updated: 2022/10/21 10:38:46 by zfarini          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_printf.h"
+#include "ft_printf_bonus.h"
 
 void	read_precision(const char **fmt, t_printf_info *info)
 {
@@ -31,7 +31,7 @@ const char	*read_format_specifier(const char *fmt, t_printf_info *info)
 {
 	if (*fmt != '%')
 		return (fmt);
-	while (ft_strchr("+- #0", *(++fmt)))
+	while (str_find("+- #0", *(++fmt)))
 	{
 		if (*fmt == '+')
 			info->plus = 1;

@@ -1,40 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_printf.c                                        :+:      :+:    :+:   */
+/*   ft_printf_bonus.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: zfarini <zfarini@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 14:24:11 by zfarini           #+#    #+#             */
-/*   Updated: 2022/10/20 23:02:35 by zfarini          ###   ########.fr       */
+/*   Updated: 2022/10/21 10:38:14 by zfarini          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_printf.h"
+#include "ft_printf_bonus.h"
 
-/*
-TODO: change ft_strchr to something else
-TODO: change names of functions and files
-TOOD: update libft and add more tests
-*/
-void	print(t_printf_info *info, const void *buf, size_t len)
-{
-	int	b;
-
-	b = write(3, buf, len);
-	if (b < 0)
-		info->write_failed = 1;
-	info->bytes_written += b;
-}
-
-void	print_the_value(t_printf_info *info)
+static void	print_the_value(t_printf_info *info)
 {
 	unsigned char	c;
 
-	if (ft_strchr("idxXu", info->sp) && !info->ivalue
+	if (str_find("idxXu", info->sp) && !info->ivalue
 		&& !info->uvalue && !info->precision)
 		return ;
-	if (ft_strchr("id", info->sp))
+	if (str_find("id", info->sp))
 		print_int(info, info->ivalue);
 	else if (info->sp == 'u')
 		print_uint_base(info, info->uvalue, BASE_10);
@@ -55,12 +40,12 @@ void	print_the_value(t_printf_info *info)
 		print(info, "%", 1);
 }
 
-void	print_the_formatted_value(t_printf_info *info)
+static void	print_the_formatted_value(t_printf_info *info)
 {
 	find_the_formatted_value_width(info);
 	if (!info->zero && !info->minus)
 		print_n_chars(info, ' ', info->min_width - info->width);
-	if (ft_strchr("id", info->sp))
+	if (str_find("id", info->sp))
 	{
 		if (info->ivalue < 0)
 			print(info, "-", 1);
@@ -75,11 +60,22 @@ void	print_the_formatted_value(t_printf_info *info)
 		print(info, "0X", 2);
 	if (info->zero)
 		print_n_chars(info, '0', info->min_width - info->width);
-	if (ft_strchr("xXidu", info->sp))
+	if (str_find("xXidu", info->sp))
 		print_n_chars(info, '0', info->precision - info->digit_count);
 	print_the_value(info);
 	if (info->minus)
 		print_n_chars(info, ' ', info->min_width - info->width);
+}
+
+static void	print_value(const char **fmt, t_printf_info *info)
+{
+	if (str_find("cspdiuxX%", info->sp))
+		print_the_formatted_value(info);
+	else if (**fmt && !info->sp)
+	{
+		print(info, *fmt, 1);
+		*fmt = *fmt + 1;
+	}
 }
 
 int	ft_vprintf(const char *fmt, va_list ap)
@@ -92,18 +88,15 @@ int	ft_vprintf(const char *fmt, va_list ap)
 	{
 		ft_bzero(&info, sizeof(info));
 		fmt = read_format_specifier(fmt, &info);
-		if (ft_strchr("idc", info.sp))
+		if (str_find("idc", info.sp))
 			info.ivalue = va_arg(ap, int);
-		else if (ft_strchr("xXu", info.sp))
+		else if (str_find("xXu", info.sp))
 			info.uvalue = va_arg(ap, unsigned int);
 		else if (info.sp == 's')
 			info.ptr = va_arg(ap, const char *);
 		else if (info.sp == 'p')
 			info.ptr = va_arg(ap, void *);
-		if (ft_strchr("idcxXusp", info.sp))
-			print_the_formatted_value(&info);
-		else
-			print(&info, fmt++, 1);
+		print_value(&fmt, &info);
 		if (info.write_failed)
 			return (-1);
 		bytes_written += info.bytes_written;

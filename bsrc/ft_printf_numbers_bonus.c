@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_printf_numbers.c                                :+:      :+:    :+:   */
+/*   ft_printf_numbers_bonus.c                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: zfarini <zfarini@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/20 22:23:07 by zfarini           #+#    #+#             */
-/*   Updated: 2022/10/20 23:01:41 by zfarini          ###   ########.fr       */
+/*   Updated: 2022/10/21 10:38:42 by zfarini          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_printf.h"
+#include "ft_printf_bonus.h"
 
 void	print_int(t_printf_info *info, int n)
 {
@@ -36,6 +36,23 @@ void	print_int(t_printf_info *info, int n)
 	}
 }
 
+int	uint_digit_count(t_printf_info *info)
+{
+	size_t	n;
+
+	n = info->uvalue;
+	info->digit_count = (n == 0);
+	while (n)
+	{
+		if (str_find("pxX", info->sp))
+			n /= 16;
+		else
+			n /= 10;
+		info->digit_count++;
+	}
+	return (info->digit_count);
+}
+
 void	print_uint_base(t_printf_info *info, size_t nbr, char *base)
 {
 	size_t	divisor;
@@ -55,6 +72,20 @@ void	print_uint_base(t_printf_info *info, size_t nbr, char *base)
 		print(info, &base[((nbr / divisor) % b)], 1);
 		divisor /= b;
 	}
+}
+
+int	ptr_digit_count(t_printf_info *info)
+{
+	uintptr_t	n;
+
+	n = (uintptr_t)info->ptr;
+	info->digit_count = (n == 0);
+	while (n)
+	{
+		n /= 16;
+		info->digit_count++;
+	}
+	return (info->digit_count);
 }
 
 void	print_ptr(t_printf_info *info, uintptr_t p)
