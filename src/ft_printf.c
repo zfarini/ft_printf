@@ -6,18 +6,11 @@
 /*   By: zfarini <zfarini@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 14:24:11 by zfarini           #+#    #+#             */
-/*   Updated: 2022/10/21 09:50:24 by zfarini          ###   ########.fr       */
+/*   Updated: 2022/10/21 11:48:44 by zfarini          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
-
-/*
-TODO: change names of functions and files
-TOOD: update libft and add more tests
-TODO: more makefile
-TODO: va_arg behind the hoods
-*/
 
 static void	print_the_value(t_printf_info *info)
 {
@@ -93,7 +86,7 @@ int	ft_vprintf(const char *fmt, va_list ap)
 	bytes_written = 0;
 	while (*fmt)
 	{
-		ft_bzero(&info, sizeof(info));
+		ft_memset(&info, 0, sizeof(info));
 		fmt = read_format_specifier(fmt, &info);
 		if (str_find("idc", info.sp))
 			info.ivalue = va_arg(ap, int);

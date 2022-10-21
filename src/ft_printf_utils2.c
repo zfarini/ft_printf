@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_printf_utils_bonus.c                            :+:      :+:    :+:   */
+/*   ft_printf_utils2.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: zfarini <zfarini@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/10/20 22:21:21 by zfarini           #+#    #+#             */
-/*   Updated: 2022/10/21 12:01:27 by zfarini          ###   ########.fr       */
+/*   Created: 2022/10/21 11:44:09 by zfarini           #+#    #+#             */
+/*   Updated: 2022/10/21 13:41:48 by zfarini          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_printf_bonus.h"
+#include "ft_printf.h"
 
 void	print(t_printf_info *info, const void *buf, size_t len)
 {
@@ -22,38 +22,40 @@ void	print(t_printf_info *info, const void *buf, size_t len)
 	info->bytes_written += b;
 }
 
-char	*str_find(const char *s, char c)
+int	int_digit_count(t_printf_info *info)
 {
-	while (*s)
+	int	n;
+
+	n = info->ivalue;
+	info->digit_count += (n == 0);
+	while (n)
 	{
-		if (*s == c)
-			return ((char *)s);
-		s++;
+		n /= 10;
+		info->digit_count++;
 	}
-	return (0);
+	return (info->digit_count);
 }
 
-void	*ft_memset(void *b, int c, size_t len)
+void	print_n_chars(t_printf_info *info, char c, int n)
 {
-	size_t	i;
-
-	i = 0;
-	while (i < len)
-		((char *)b)[i++] = (unsigned char)c;
-	return (b);
+	while (n > 0)
+	{
+		print(info, &c, 1);
+		n--;
+	}
 }
 
-int	ft_isdigit(int c)
+void	print_str(t_printf_info *info)
 {
-	return (c >= '0' && c <= '9');
-}
+	int	l;
 
-int	ft_strlen(const char *s)
-{
-	int	i;
-
-	i = 0;
-	while (s[i])
-		i++;
-	return (i);
+	if (info->precision >= 0)
+	{
+		l = 0;
+		while (l < info->precision && ((char *)info->ptr)[l])
+			l++;
+	}
+	else
+		l = ft_strlen((char *)info->ptr);
+	print(info, (char *)info->ptr, l);
 }

@@ -6,7 +6,7 @@
 /*   By: zfarini <zfarini@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 14:24:11 by zfarini           #+#    #+#             */
-/*   Updated: 2022/10/21 10:38:14 by zfarini          ###   ########.fr       */
+/*   Updated: 2022/10/21 12:01:09 by zfarini          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,7 +86,7 @@ int	ft_vprintf(const char *fmt, va_list ap)
 	bytes_written = 0;
 	while (*fmt)
 	{
-		ft_bzero(&info, sizeof(info));
+		ft_memset(&info, 0, sizeof(info));
 		fmt = read_format_specifier(fmt, &info);
 		if (str_find("idc", info.sp))
 			info.ivalue = va_arg(ap, int);

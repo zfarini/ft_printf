@@ -6,14 +6,15 @@
 /*   By: zfarini <zfarini@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:43:10 by zfarini           #+#    #+#             */
-/*   Updated: 2022/10/21 10:38:35 by zfarini          ###   ########.fr       */
+/*   Updated: 2022/10/21 12:01:16 by zfarini          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef FT_PRINTF_BONUS_H
 # define FT_PRINTF_BONUS_H
 # include <stdarg.h>
-# include "../libft/libft.h"
+# include <stdint.h>
+# include <unistd.h>
 
 # define BASE_10 "0123456789"
 # define BASE_16_LOWERCASE "0123456789abcdef"
@@ -37,6 +38,9 @@ typedef struct s_printf_info {
 	const void		*ptr;
 }			t_printf_info;
 
+int			ft_strlen(const char *s);
+void		*ft_memset(void *b, int c, size_t len);
+int			ft_isdigit(int c);
 char		*str_find(const char *s, char c);
 int			int_digit_count(t_printf_info *info);
 int			uint_digit_count(t_printf_info *info);
