@@ -9,7 +9,7 @@ BDEPS	= ${BOBJS:.o=.d}
 NAME    = libftprintf.a
 CC		= cc
 CPPFLAGS = -MMD 
-CFLAGS  = -Wall -Wextra -Werror -fsanitize=address -fsanitize=undefined
+CFLAGS  = -Wall -Wextra# -Werror -fsanitize=address -fsanitize=undefined
 AR		= ar rcs
 RM		= rm -f
 
@@ -22,16 +22,16 @@ bonus: ${BOBJS}
 	${AR} ${NAME} ${BOBJS}
 
 clean:
-	${RM} ${OBJS} ${DEPS} ${BOBJS} ${BDEPS} tester.o
+	${RM} ${OBJS} ${DEPS} ${BOBJS} ${BDEPS}
 
 fclean: clean
-	${RM} ${NAME}
+	${RM} ${NAME} test
 
-test: tester.o ${NAME}
-	${CC} ${CFLAGS} ${NAME} tester.c -o test
+test: tester.c ${NAME}
+	${CC} tester.c ${CFLAGS} ${NAME} -o test
 
 re: fclean all
 
 -include ${DEPS} ${BDEPS}
 
-.PHONY: all bonus test clean fclean re
+.PHONY: all bonus clean fclean re

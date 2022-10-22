@@ -6,24 +6,16 @@
 /*   By: zfarini <zfarini@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/20 22:21:21 by zfarini           #+#    #+#             */
-/*   Updated: 2022/10/21 12:01:27 by zfarini          ###   ########.fr       */
+/*   Updated: 2022/10/21 14:39:20 by zfarini          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf_bonus.h"
 
-void	print(t_printf_info *info, const void *buf, size_t len)
-{
-	int	b;
-
-	b = write(3, buf, len);
-	if (b < 0)
-		info->write_failed = 1;
-	info->bytes_written += b;
-}
-
 char	*str_find(const char *s, char c)
 {
+	if (!s)
+		return (0);
 	while (*s)
 	{
 		if (*s == c)
@@ -52,6 +44,8 @@ int	ft_strlen(const char *s)
 {
 	int	i;
 
+	if (!s)
+		return (0);
 	i = 0;
 	while (s[i])
 		i++;

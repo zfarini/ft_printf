@@ -1,6 +1,4 @@
 .vscode
-a.out
+*.out
 *.o
-libftTester
-p
-printfTester
+*.d

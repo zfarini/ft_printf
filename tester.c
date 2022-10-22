@@ -34,12 +34,18 @@ void T(int test_number, char *fmt, ...)
     va_start(ap, fmt);
     va_list ap2;
     va_copy(ap2, ap);
-    char s1[4096];
+    char s1[8192];
     int b1 = vsprintf(s1, fmt, ap);
-    assert(open("out", O_WRONLY | O_TRUNC, 0) >= 0);
+	int stdout_copy = dup(1);
+	close(1);
+
+    assert(open("out", O_WRONLY | O_TRUNC | O_CREAT, 0644) == 1);
 	int b2 = ft_vprintf(fmt, ap2);
-    close(3);
+	close(1);
+	dup2(stdout_copy, 1);
+	close(stdout_copy);
     char *s2 = read_file("out");
+	
     if (strcmp(s1, s2) || b1 != b2)
     {
         printf("TEST %d: \033[1;31mFAILED\033[0m\nfmt=\"%s\"\ns1 = \"%s\", b1 = %d\ns2 = \"%s\", b2 = %d\n",
@@ -52,8 +58,6 @@ void T(int test_number, char *fmt, ...)
     va_end(ap);
     va_end(ap2);
 }
-
-#define SP(...)
 
 int main(void)
 { 
@@ -75,10 +79,11 @@ int main(void)
     T(14, "% d%%%     i%p%   +d%+  d%    i", 0, -1, (void *)1, 42, INT_MAX, INT_MIN, INT_MIN); // ' '
     T(15, "%#X%###x%%%+d%#x%##X%#x", 14, 0xabcdef, -1, 0, UINT32_MAX, 0);
     // min width
-    T(16, "%5d%10s%       2d%###10x%12p%21s%3c%   ++++ + +42i", 0, "ttt", 3, 0xab, 0, 0, 'f', INT_MAX);
+    T(16, "%5d%10s%       2d%###10x%12p%21s%3c%   ++++ + +42i", 0, "ttt", 3, 0xab, 0, "v", 'f', INT_MAX);
+	//return (0);
     T(17, "dd%1u%    3iffa%%%50sff%###12xa", 0, 22, "aa", 0xff);
     // '-'
-	T(18, "%--5d%-10s%   -    2db%-#-##-10x%--12p%21s%-3c%   ++++ + +42i", 0, "ttt", 3, 0xab, 0, 0, 'f', INT_MAX);
+	T(18, "%--5d%-10s%   -    2db%-#-##-10x%--12p%21s%-3c%   ++++ + +42i", 0, "ttt", 3, 0xab, 0, "aba", 'f', INT_MAX);
 	T(19, "dd%--1u%    -3iffa%%%--50sff%-###12xa", 0, 22, "aa", 0xff);
 	// '.'
 	T(20, "%.d%.u%#.X%%% +.5d%  +.4i%#.5X", 0, 0, 0, -21, 1, 0x5f5);

@@ -6,11 +6,21 @@
 /*   By: zfarini <zfarini@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/21 11:44:09 by zfarini           #+#    #+#             */
-/*   Updated: 2022/10/21 12:01:31 by zfarini          ###   ########.fr       */
+/*   Updated: 2022/10/21 14:39:15 by zfarini          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf_bonus.h"
+
+void	print(t_printf_info *info, const void *buf, size_t len)
+{
+	int	b;
+
+	b = write(1, buf, len);
+	if (b < 0)
+		info->write_failed = 1;
+	info->bytes_written += b;
+}
 
 int	int_digit_count(t_printf_info *info)
 {

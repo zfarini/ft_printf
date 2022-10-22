@@ -6,7 +6,7 @@
 /*   By: zfarini <zfarini@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/20 22:21:21 by zfarini           #+#    #+#             */
-/*   Updated: 2022/10/21 13:42:10 by zfarini          ###   ########.fr       */
+/*   Updated: 2022/10/21 14:39:23 by zfarini          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 
 char	*str_find(const char *s, char c)
 {
+	if (!s)
+		return (0);
 	while (*s)
 	{
 		if (*s == c)
@@ -42,6 +44,8 @@ int	ft_strlen(const char *s)
 {
 	int	i;
 
+	if (!s)
+		return (0);
 	i = 0;
 	while (s[i])
 		i++;
